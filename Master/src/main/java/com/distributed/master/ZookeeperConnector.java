@@ -62,7 +62,7 @@ public class ZookeeperConnector extends Thread{
             }
             System.out.println(dictionary);
         });
-        client.setData().forPath("/test1", "127.0.0.3 professor".getBytes());
+//        client.setData().forPath("/test1", "127.0.0.3 professor".getBytes());
         Thread.sleep(Integer.MAX_VALUE);
     }
 
