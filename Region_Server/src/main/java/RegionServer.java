@@ -33,6 +33,7 @@ public class RegionServer {
         ServerSocket serverSocket = new ServerSocket(port);
         API.initial();
         tableNames = CatalogManager.get_tables();
+        System.out.println(tableNames);
         regionServerIP = String.valueOf(InetAddress.getLocalHost().getHostAddress());
         zookeeperConnect();
         while(true){

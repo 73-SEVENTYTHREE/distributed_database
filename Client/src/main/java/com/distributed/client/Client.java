@@ -3,6 +3,7 @@ import RECORDMANAGER.ReturnData;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 
@@ -55,14 +56,35 @@ public class Client {
         }
     }
     /**
-     * @author
+     * @author Wei Liu
      * @date 2021/6/8
      * 将接回的数据展示
      */
     public static void showData(ReturnData returnData){
-        System.out.println(returnData.isSuccess);
-        System.out.println(returnData.info);
-        System.out.println(returnData.returnData.size());
+        int size = returnData.returnData.size();
+        if(size > 0){
+            for(int k = 0; k < returnData.returnData.get(size - 1).get_attribute_size(); k++){
+                System.out.print("-------");
+            }
+            System.out.println();
+            for(int j = 0; j < returnData.returnData.get(size - 1).get_attribute_size(); j++){
+                System.out.print("| " + returnData.returnData.get(size - 1).get_attribute_value(j) + " ");
+            }
+            System.out.println("|");
+            for(int i = 0; i < size - 1; i++){
+                for(int k = 0; k < returnData.returnData.get(i).get_attribute_size(); k++){
+                    System.out.print("-------");
+                }
+                System.out.println();
+                for(int j = 0; j < returnData.returnData.get(i).get_attribute_size(); j++){
+                    System.out.print("| " + returnData.returnData.get(i).get_attribute_value(j) + " ");
+                }
+                System.out.println("|");
+            }
+            for(int k = 0; k < returnData.returnData.get(0).get_attribute_size(); k++){
+                System.out.print("-------");
+            }
+        }
     }
     /**
     * 发送数据给Master
@@ -80,9 +102,7 @@ public class Client {
             InputStream inFromServer = client.getInputStream();
 
             DataInputStream in = new DataInputStream(inFromServer);
-            String response = in.readUTF();
-            System.out.println("服务器响应： " + response);
-            return response;
+            return in.readUTF();
         }catch(IOException e)
         {
             e.printStackTrace();
@@ -111,7 +131,6 @@ public class Client {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-            System.out.println("服务器响应： " + response);
             return response;
         }catch(IOException e)
         {

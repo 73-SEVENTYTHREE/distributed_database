@@ -1,7 +1,5 @@
 package RECORDMANAGER;
 
-import RECORDMANAGER.TableRow;
-
 import java.io.Serializable;
 import java.util.Vector;
 

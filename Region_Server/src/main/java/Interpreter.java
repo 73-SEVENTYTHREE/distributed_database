@@ -128,6 +128,7 @@ public class Interpreter {
                     default:
                         throw new QException(0, 205, "Can't identify " + tokens[0]);
                 }
+                API.store();
                 return returnData;
             } catch (QException e) {
                 String info = e.status + " " + QException.ex[e.type] + ": " + e.msg;
