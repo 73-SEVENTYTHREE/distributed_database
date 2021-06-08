@@ -8,15 +8,30 @@ public class Client {
     private static final int MasterPort = 8000;
     private static final int RegionServerPort = 8001;
     public static void main(String[] args){
+        String restState = "";
         BufferedReader br;
-        String str;
         try {
             br = new BufferedReader(new InputStreamReader(System.in));
             while (true) {
-                str = br.readLine();
-                if (str.equals("quit"))
-                    break;
-                String tableName = getTableName(str);
+                StringBuilder str = new StringBuilder();
+                while(true){
+                    int index;
+                    String line = br.readLine();
+                    if (line.equals("quit"))
+                        break;
+                    if (line.contains(";")) { //last line
+                        index = line.indexOf(";");
+                        str.append(line.substring(0, index));
+                        restState = line.substring(index + 1); //set reset statement
+                        break;
+                    } else {
+                        str.append(line);
+                        str.append(" ");
+                    }
+                }
+                String result = str.toString().trim().replaceAll("\\s+", " ");
+//                System.out.println(result);
+                String tableName = getTableName(result);
                 if(tableName.equals("-1")) continue;
                 String state = sendDataToMaster(tableName);
                 if(state.charAt(0)>='0'&&state.charAt(0)<='9')
