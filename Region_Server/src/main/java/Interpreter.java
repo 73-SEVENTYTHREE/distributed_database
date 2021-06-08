@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 
 public class Interpreter {
 
-    private static final boolean nestLock = false; //not permit to use nesting sql file execution
+    private static boolean nestLock = false; //not permit to use nesting sql file execution
     private static int execFile = 0;
 
     public static void main(String[] args) {
@@ -32,7 +32,7 @@ public class Interpreter {
 
     }
 
-    private static void interpret(BufferedReader reader) throws IOException {
+    static void interpret(BufferedReader reader) throws IOException {
         String restState = ""; //rest statement after ';' in last line
 
         while (true) { //read for each statement
