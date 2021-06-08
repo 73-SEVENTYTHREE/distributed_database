@@ -22,7 +22,7 @@ public class Client {
                     int index;
                     String line = br.readLine();
                     if (line.equals("quit"))
-                        break;
+                        System.exit(0);
                     if (line.contains(";")) { //last line
                         index = line.indexOf(";");
                         str.append(line.substring(0, index));
@@ -46,7 +46,8 @@ public class Client {
                 }
                 else
                 {
-                    System.out.println("Fail to Send Data to Master");
+                    System.out.println(state);
+                    continue;
                 }
                 ReturnData returnData = sendDataToRegionServer(state, result);
                 showData(returnData);
@@ -84,7 +85,9 @@ public class Client {
             for(int k = 0; k < returnData.returnData.get(0).get_attribute_size(); k++){
                 System.out.print("-------");
             }
+            System.out.println();
         }
+        System.out.println(returnData.info);
     }
     /**
     * 发送数据给Master

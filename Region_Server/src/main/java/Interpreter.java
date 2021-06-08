@@ -8,6 +8,7 @@ import RECORDMANAGER.Condition;
 import RECORDMANAGER.RecordManager;
 import RECORDMANAGER.ReturnData;
 import RECORDMANAGER.TableRow;
+import ZOOKEEPERMANAGER.ZookeeperManager;
 
 import java.io.*;
 import java.util.Vector;
@@ -129,6 +130,7 @@ public class Interpreter {
                         throw new QException(0, 205, "Can't identify " + tokens[0]);
                 }
                 API.store();
+                ZookeeperManager.tableChange();
                 return returnData;
             } catch (QException e) {
                 String info = e.status + " " + QException.ex[e.type] + ": " + e.msg;
@@ -248,6 +250,7 @@ public class Interpreter {
 
         Table table = new Table(tableName, primaryName, attrVec); // create table
         API.create_table(tableName, table);
+        API.store();
         String info = "Create table " + tableName + " successfully";
         return new ReturnData(true, info);
     }
