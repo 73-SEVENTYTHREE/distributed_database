@@ -47,7 +47,7 @@ public class Client {
                 {
                     System.out.println("Fail to Send Data to Master");
                 }
-                ReturnData returnData = sendDataToRegionServer("127.0.0.1", result);
+                ReturnData returnData = sendDataToRegionServer(state, result);
                 showData(returnData);
             }
         } catch (IOException e) {
@@ -99,7 +99,7 @@ public class Client {
         //建立socket连接
         try
         {
-            Socket client = new Socket(ServerName, RegionServerPort);
+            Socket client = new Socket(regionServer, RegionServerPort);
             OutputStream outToServer = client.getOutputStream();
             PrintWriter pw = new PrintWriter(outToServer);
             pw.println(data);

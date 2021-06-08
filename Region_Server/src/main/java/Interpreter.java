@@ -326,11 +326,18 @@ public class Interpreter {
             throw new QException(0, 250, "Can not find key word 'from' or lack of blank before from!");
         if (attrStr.trim().equals("*")) {
             //select all attributes
+            TableRow attr = new TableRow();
             if (tabStr.equals("")) {  // select * from [];
                 tabStr = Utils.substring(statement, "from ", "");
                 Vector<TableRow> ret = API.select(tabStr, new Vector<>(), new Vector<>());
                 endTime = System.currentTimeMillis();
 //                Utils.print_rows(ret, tabStr);
+                int attrSize = ret.get(0).get_attribute_size();
+                for(int i=0;i<attrSize;i++){
+                    String attrName = CatalogManager.get_attribute_name(tabStr, i);
+                    attr.add_attribute_value(attrName);
+                }
+                ret.add(attr);
                 returnData = new ReturnData(true, "", ret);
             } else { //select * from [] where [];
                 String[] conSet = conStr.split(" *and *");
@@ -339,13 +346,21 @@ public class Interpreter {
                 Vector<TableRow> ret = API.select(tabStr, new Vector<>(), conditions);
                 endTime = System.currentTimeMillis();
 //                Utils.print_rows(ret, tabStr);
+                int attrSize = ret.get(0).get_attribute_size();
+                for(int i=0;i<attrSize;i++){
+                    String attrName = CatalogManager.get_attribute_name(tabStr, i);
+                    attr.add_attribute_value(attrName);
+                }
+                ret.add(attr);
                 returnData = new ReturnData(true, "", ret);
             }
         } else {
             attrNames = Utils.convert(attrStr.split(" *, *")); //get attributes list
+            TableRow attr = new TableRow(attrNames);
             if (tabStr.equals("")) {  //select [attr] from [];
                 tabStr = Utils.substring(statement, "from ", "");
                 Vector<TableRow> ret = API.select(tabStr, attrNames, new Vector<>());
+                ret.add(attr);
                 endTime = System.currentTimeMillis();
 //                Utils.print_rows(ret, tabStr);
                 returnData = new ReturnData(true, "", ret);
@@ -354,6 +369,7 @@ public class Interpreter {
                 //get condition vector
                 conditions = Utils.create_conditon(conSet);
                 Vector<TableRow> ret = API.select(tabStr, attrNames, conditions);
+                ret.add(attr);
                 endTime = System.currentTimeMillis();
 //                Utils.print_rows(ret, tabStr);
                 returnData = new ReturnData(true, "", ret);
