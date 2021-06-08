@@ -57,8 +57,8 @@ public class ZookeeperConnector extends Thread{
                 List<String> tableName = new ArrayList<>();
                 if(info.length > 1){
                     for(int i = 1; i < info.length; i++) tableName.add(info[i]);
-                    dictionary.put(url, tableName);
                 }
+                dictionary.put(url, tableName);
             }
             System.out.println(dictionary);
         });

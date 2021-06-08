@@ -7,15 +7,30 @@ public class Client {
     private static final String ServerName = "127.0.0.1";
     private static final int Port = 8000;
     public static void main(String[] args){
+        String restState = "";
         BufferedReader br;
-        String str;
         try {
             br = new BufferedReader(new InputStreamReader(System.in));
             while (true) {
-                str = br.readLine();
-                if (str.equals("quit"))
-                    break;
-                String tableName = getTableName(str);
+                StringBuilder str = new StringBuilder();
+                while(true){
+                    int index;
+                    String line = br.readLine();
+                    if (line.equals("quit"))
+                        break;
+                    if (line.contains(";")) { //last line
+                        index = line.indexOf(";");
+                        str.append(line.substring(0, index));
+                        restState = line.substring(index + 1); //set reset statement
+                        break;
+                    } else {
+                        str.append(line);
+                        str.append(" ");
+                    }
+                }
+                String result = str.toString().trim().replaceAll("\\s+", " ");
+//                System.out.println(result);
+                String tableName = getTableName(result);
                 if(tableName.equals("-1")) continue;
                 boolean state = sendData(tableName);
                 if(state) System.out.println("Send Data to Master Successfully!");
