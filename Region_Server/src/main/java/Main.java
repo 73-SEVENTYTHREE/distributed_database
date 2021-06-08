@@ -10,9 +10,12 @@ import RECORDMANAGER.RecordManager;
 import java.util.Vector;
 
 public class Main {
+
     public static void main(String[] args) {
         API api = new API();
-        buffer_unit_test();
+        //buffer_unit_test(); //Buffer Manager test function
+        //catalog_unit_test1();
+        //catalog_unit_test2();
     }
 
     public static void buffer_unit_test() {
@@ -72,6 +75,9 @@ public class Main {
             Table tmpTable2 = new Table("book", "name", tmpAttributeVector);
             CatalogManager.create_table(tmpTable2);
             CatalogManager.show_catalog();
+            //CatalogManager.drop_table("students");
+            //CatalogManager.show_catalog();
+            //CatalogManager.drop_index("idIndex");
             Index tmpIndex2 = new Index("categoryIndex", "book", "category");
             CatalogManager.create_index(tmpIndex2);
             CatalogManager.show_catalog();

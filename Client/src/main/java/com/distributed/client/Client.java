@@ -5,7 +5,8 @@ import java.util.Scanner;
 
 public class Client {
     private static final String ServerName = "127.0.0.1";
-    private static final int Port = 8000;
+    private static final int MasterPort = 8000;
+    private static final int RegionServerPort = 8001;
     public static void main(String[] args){
         BufferedReader br;
         String str;
@@ -17,24 +18,32 @@ public class Client {
                     break;
                 String tableName = getTableName(str);
                 if(tableName.equals("-1")) continue;
-                boolean state = sendData(tableName);
-                if(state) System.out.println("Send Data to Master Successfully!");
-                else System.out.println("Fail to Send Data to Master");
+                String state = sendDataToMaster(tableName);
+                if(state.charAt(0)>='0'&&state.charAt(0)<='9')
+                {
+                    System.out.println("Send Data to Master Successfully!");
+                    System.out.println("Try to send query to Region Server!");
+
+                }
+                else
+                {
+                    System.out.println("Fail to Send Data to Master");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    /*
+    /**
     * 发送数据给Master
     * Creator: Wei Liu
     * Date: 2021/6/6
-    * */
-    public static boolean sendData(String data){
+    */
+    public static String sendDataToMaster(String data){
         //建立socket连接
         try
         {
-            Socket client = new Socket(ServerName, Port);
+            Socket client = new Socket(ServerName, MasterPort);
             OutputStream outToServer = client.getOutputStream();
             DataOutputStream out = new DataOutputStream(outToServer);
             out.writeUTF(data);
@@ -43,19 +52,44 @@ public class Client {
             DataInputStream in = new DataInputStream(inFromServer);
             String response = in.readUTF();
             System.out.println("服务器响应： " + response);
-            return true;
+            return response;
         }catch(IOException e)
         {
             e.printStackTrace();
-            return false;
+            return "-1";
         }
     }
 
-    /*
+    /**
+     * 发送数据给Master
+     * Creator: Wei Liu
+     * Date: 2021/6/6
+     */
+    public static String sendDataToRegionServer(String data){
+        //建立socket连接
+        try
+        {
+            Socket client = new Socket(ServerName, RegionServerPort);
+            OutputStream outToServer = client.getOutputStream();
+            DataOutputStream out = new DataOutputStream(outToServer);
+            out.writeUTF(data);
+            InputStream inFromServer = client.getInputStream();
+            DataInputStream in = new DataInputStream(inFromServer);
+            String response = in.readUTF();
+            System.out.println("服务器响应： " + response);
+            return response;
+        }catch(IOException e)
+        {
+            e.printStackTrace();
+            return "-1";
+        }
+    }
+
+    /**
     * 解析输入语句，获取表名
     * Creator: Wei Liu
     * Date: 2021/6/6
-    * */
+    */
     public static String getTableName(String input){
         String result = input.trim().replaceAll("\\s+", " ");
         String[] tokens = result.split(" ");

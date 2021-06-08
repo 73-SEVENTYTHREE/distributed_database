@@ -1,6 +1,6 @@
 package INDEXMANAGER;
 import java.util.Vector;
-@SuppressWarnings("unchecked")
+
 public class BPTree<K extends Comparable<? super K>, V> { // K:key type; V:value type
     
     private Node<K, V> root;

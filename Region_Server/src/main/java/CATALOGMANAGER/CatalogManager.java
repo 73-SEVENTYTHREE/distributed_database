@@ -168,6 +168,18 @@ public class CatalogManager {
         return len;
     }
 
+    public static ArrayList<String> get_tables() {
+        Table tmpTable;
+        ArrayList<String> tableNames = new ArrayList<>();
+        Iterator<Map.Entry<String, Table>> iter = tables.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry entry = iter.next();
+            tmpTable = (Table) entry.getValue();
+            tableNames.add(tmpTable.tableName);
+        }
+        return tableNames;
+    }
+
     public static void show_table() {
         Table tmpTable;
         Attribute tmpAttribute;
