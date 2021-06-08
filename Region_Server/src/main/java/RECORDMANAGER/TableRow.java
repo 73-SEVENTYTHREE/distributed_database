@@ -1,8 +1,9 @@
 package RECORDMANAGER;
 
+import java.io.Serializable;
 import java.util.Vector;
 
-public class TableRow {
+public class TableRow implements Serializable {
 
     private Vector<String> attributeValue;
 

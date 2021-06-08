@@ -6,6 +6,7 @@ import INDEXMANAGER.Index;
 import INDEXMANAGER.IndexManager;
 import RECORDMANAGER.Condition;
 import RECORDMANAGER.RecordManager;
+import RECORDMANAGER.ReturnData;
 import RECORDMANAGER.TableRow;
 
 import java.io.*;
@@ -23,7 +24,7 @@ public class Interpreter {
             API.initial();
             System.out.println("Welcome to minisql~");
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            interpret(reader);
+            //interpret(reader);
         } catch (IOException e) {
             System.out.println("101 Run time error : IO exception occurs");
         } catch (Exception e) {
@@ -32,45 +33,46 @@ public class Interpreter {
 
     }
 
-    static void interpret(BufferedReader reader) throws IOException {
-        String restState = ""; //rest statement after ';' in last line
+    static ReturnData interpret(String result) throws IOException {
+//        String restState = ""; //rest statement after ';' in last line
+        ReturnData returnData = null;
 
-        while (true) { //read for each statement
-            int index;
-            String line;
-            StringBuilder statement = new StringBuilder();
-            if (restState.contains(";")) { // resetLine contains whole statement
-                index = restState.indexOf(";");
-                statement.append(restState.substring(0, index));
-                restState = restState.substring(index + 1);
-            } else {
-                statement.append(restState); //add rest line
-                statement.append(" ");
-                if (execFile == 0)
-                    System.out.print("MiniSQL-->");
-//                System.out.print("-->");
-                while (true) {  //read whole statement until ';'
-                    line = reader.readLine();
-                    if (line == null) { //read the file tail
-                        reader.close();
-                        return;
-                    } else if (line.contains(";")) { //last line
-                        index = line.indexOf(";");
-                        statement.append(line.substring(0, index));
-                        restState = line.substring(index + 1); //set reset statement
-                        break;
-                    } else {
-                        statement.append(line);
-                        statement.append(" ");
-                        if (execFile == 0)
-                            System.out.print("MiniSQL-->");
-//                        System.out.print("-->"); //next line
-                    }
-                }
-            }
+////        while (true) { //read for each statement
+//            int index;
+//            String line;
+//            StringBuilder statement = new StringBuilder();
+//            if (restState.contains(";")) { // resetLine contains whole statement
+//                index = restState.indexOf(";");
+//                statement.append(restState.substring(0, index));
+//                restState = restState.substring(index + 1);
+//            } else {
+//                statement.append(restState); //add rest line
+//                statement.append(" ");
+//                if (execFile == 0);
+////                    System.out.print("MiniSQL-->");
+////                System.out.print("-->");
+//                while (true) {  //read whole statement until ';'
+//                    line = reader.readLine();
+//                    if (line == null) { //read the file tail
+////                        reader.close();
+////                        return;
+//                    } else if (line.contains(";")) { //last line
+//                        index = line.indexOf(";");
+//                        statement.append(line.substring(0, index));
+//                        restState = line.substring(index + 1); //set reset statement
+//                        break;
+//                    } else {
+//                        statement.append(line);
+//                        statement.append(" ");
+//                        if (execFile == 0);
+////                            System.out.print("MiniSQL-->");
+////                        System.out.print("-->"); //next line
+//                    }
+//                }
+//            }
 
             //after get the whole statement
-            String result = statement.toString().trim().replaceAll("\\s+", " ");
+//            String result = statement.toString().trim().replaceAll("\\s+", " ");
             String[] tokens = result.split(" ");
 
             try {
@@ -82,10 +84,10 @@ public class Interpreter {
                             throw new QException(0, 201, "Can't find create object");
                         switch (tokens[1]) {
                             case "table":
-                                parse_create_table(result);
+                                returnData = parse_create_table(result);
                                 break;
                             case "index":
-                                parse_create_index(result);
+                                returnData = parse_create_index(result);
                                 break;
                             default:
                                 throw new QException(0, 202, "Can't identify " + tokens[1]);
@@ -96,54 +98,59 @@ public class Interpreter {
                             throw new QException(0, 203, "Can't find drop object");
                         switch (tokens[1]) {
                             case "table":
-                                parse_drop_table(result);
+                                returnData = parse_drop_table(result);
                                 break;
                             case "index":
-                                parse_drop_index(result);
+                                returnData = parse_drop_index(result);
                                 break;
                             default:
                                 throw new QException(0, 204, "Can't identify " + tokens[1]);
                         }
                         break;
                     case "select":
-                        parse_select(result);
+                        returnData = parse_select(result);
                         break;
                     case "insert":
-                        parse_insert(result);
+                        returnData = parse_insert(result);
                         break;
                     case "delete":
-                        parse_delete(result);
+                        returnData = parse_delete(result);
                         break;
-                    case "quit":
-                        parse_quit(result, reader);
-                        break;
-                    case "execfile":
-                        parse_sql_file(result);
-                        break;
-                    case "show":
-                        parse_show(result);
-                        break;
+//                    case "quit":
+//                        parse_quit(result, reader);
+//                        break;
+//                    case "execfile":
+//                        parse_sql_file(result);
+//                        break;
+//                    case "show":
+//                        parse_show(result);
+//                        break;
                     default:
                         throw new QException(0, 205, "Can't identify " + tokens[0]);
                 }
+                return returnData;
             } catch (QException e) {
-                System.out.println(e.status + " " + QException.ex[e.type] + ": " + e.msg);
+                String info = e.status + " " + QException.ex[e.type] + ": " + e.msg;
+                returnData = new ReturnData(false, info);
+                return returnData;
             } catch (Exception e) {
-                System.out.println("Default error: " + e.getMessage());
+                String info =  "Default error: " + e.getMessage();
+                returnData = new ReturnData(false, info);
+                return returnData;
             }
         }
-    }
+//    }
 
-    private static void parse_show(String statement) throws Exception {
-        String type = Utils.substring(statement, "show ", "").trim();
-        if (type.equals("tables")) {
-            CatalogManager.show_table();
-        } else if (type.equals("indexes")) {
-            CatalogManager.show_index();
-        } else throw new QException(0, 323, "Can not find valid key word after 'show'!");
-    }
+//    private static void parse_show(String statement) throws Exception {
+//        String type = Utils.substring(statement, "show ", "").trim();
+//        if (type.equals("tables")) {
+//            CatalogManager.show_table();
+//        } else if (type.equals("indexes")) {
+//            CatalogManager.show_index();
+//        } else throw new QException(0, 323, "Can not find valid key word after 'show'!");
+//    }
 
-    private static void parse_create_table(String statement) throws Exception {
+    private static ReturnData parse_create_table(String statement) throws Exception {
         statement = statement.replaceAll(" *\\( *", " (").replaceAll(" *\\) *", ") ");
         statement = statement.replaceAll(" *, *", ",");
         statement = statement.trim();
@@ -240,10 +247,11 @@ public class Interpreter {
 
         Table table = new Table(tableName, primaryName, attrVec); // create table
         API.create_table(tableName, table);
-        System.out.println("-->Create table " + tableName + " successfully");
+        String info = "Create table " + tableName + " successfully";
+        return new ReturnData(true, info);
     }
 
-    private static void parse_drop_table(String statement) throws Exception {
+    private static ReturnData parse_drop_table(String statement) throws Exception {
         String[] tokens = statement.split(" ");
         if (tokens.length == 2)
             throw new QException(0, 601, "Not specify table name");
@@ -252,10 +260,11 @@ public class Interpreter {
 
         String tableName = tokens[2]; //get table name
         API.drop_table(tableName);
-        System.out.println("-->Drop table " + tableName + " successfully");
+        String info = "Drop table " + tableName + " successfully";
+        return new ReturnData(true, info);
     }
 
-    private static void parse_create_index(String statement) throws Exception {
+    private static ReturnData parse_create_index(String statement) throws Exception {
         statement = statement.replaceAll("\\s+", " ");
         statement = statement.replaceAll(" *\\( *", " (").replaceAll(" *\\) *", ") ");
         statement = statement.trim();
@@ -286,10 +295,11 @@ public class Interpreter {
 
         Index index = new Index(indexName, tableName, attrName);
         API.create_index(index);
-        System.out.println("-->Create index " + indexName + " successfully");
+        String info = "Create index " + indexName + " successfully";
+        return new ReturnData(true, info);
     }
 
-    private static void parse_drop_index(String statement) throws Exception {
+    private static ReturnData parse_drop_index(String statement) throws Exception {
         String[] tokens = statement.split(" ");
         if (tokens.length == 2)
             throw new QException(0, 801, "Not specify index name");
@@ -298,10 +308,11 @@ public class Interpreter {
 
         String indexName = tokens[2]; //get table name
         API.drop_index(indexName);
-        System.out.println("-->Drop index " + indexName + " successfully");
+        String info = "Drop index " + indexName + " successfully";
+        return new ReturnData(true, info);
     }
 
-    private static void parse_select(String statement) throws Exception {
+    private static ReturnData parse_select(String statement) throws Exception {
         //select ... from ... where ...
         String attrStr = Utils.substring(statement, "select ", " from");
         String tabStr = Utils.substring(statement, "from ", " where");
@@ -310,6 +321,7 @@ public class Interpreter {
         Vector<String> attrNames;
         long startTime, endTime;
         startTime = System.currentTimeMillis();
+        ReturnData returnData = null;
         if (attrStr.equals(""))
             throw new QException(0, 250, "Can not find key word 'from' or lack of blank before from!");
         if (attrStr.trim().equals("*")) {
@@ -318,14 +330,16 @@ public class Interpreter {
                 tabStr = Utils.substring(statement, "from ", "");
                 Vector<TableRow> ret = API.select(tabStr, new Vector<>(), new Vector<>());
                 endTime = System.currentTimeMillis();
-                Utils.print_rows(ret, tabStr);
+//                Utils.print_rows(ret, tabStr);
+                returnData = new ReturnData(true, "", ret);
             } else { //select * from [] where [];
                 String[] conSet = conStr.split(" *and *");
                 //get condition vector
                 conditions = Utils.create_conditon(conSet);
                 Vector<TableRow> ret = API.select(tabStr, new Vector<>(), conditions);
                 endTime = System.currentTimeMillis();
-                Utils.print_rows(ret, tabStr);
+//                Utils.print_rows(ret, tabStr);
+                returnData = new ReturnData(true, "", ret);
             }
         } else {
             attrNames = Utils.convert(attrStr.split(" *, *")); //get attributes list
@@ -333,21 +347,24 @@ public class Interpreter {
                 tabStr = Utils.substring(statement, "from ", "");
                 Vector<TableRow> ret = API.select(tabStr, attrNames, new Vector<>());
                 endTime = System.currentTimeMillis();
-                Utils.print_rows(ret, tabStr);
+//                Utils.print_rows(ret, tabStr);
+                returnData = new ReturnData(true, "", ret);
             } else { //select [attr] from [table] where
                 String[] conSet = conStr.split(" *and *");
                 //get condition vector
                 conditions = Utils.create_conditon(conSet);
                 Vector<TableRow> ret = API.select(tabStr, attrNames, conditions);
                 endTime = System.currentTimeMillis();
-                Utils.print_rows(ret, tabStr);
+//                Utils.print_rows(ret, tabStr);
+                returnData = new ReturnData(true, "", ret);
             }
         }
         double usedTime = (endTime - startTime) / 1000.0;
-        System.out.println("Finished in " + usedTime + " s");
+        returnData.setInfo("Finished in " + usedTime + " s");
+        return returnData;
     }
 
-    private static void parse_insert(String statement) throws Exception {
+    private static ReturnData parse_insert(String statement) throws Exception {
         statement = statement.replaceAll(" *\\( *", " (").replaceAll(" *\\) *", ") ");
         statement = statement.replaceAll(" *, *", ",");
         statement = statement.trim();
@@ -418,10 +435,11 @@ public class Interpreter {
         }
 
         API.insert_row(tableName, tableRow);
-        System.out.println("-->Insert successfully");
+        String info = "Insert successfully";
+        return new ReturnData(true, info);
     }
 
-    private static void parse_delete(String statement) throws Exception {
+    private static ReturnData parse_delete(String statement) throws Exception {
         //delete from [tabName] where []
         int num;
         String tabStr = Utils.substring(statement, "from ", " where").trim();
@@ -431,49 +449,51 @@ public class Interpreter {
         if (tabStr.equals("")) {  //delete from ...
             tabStr = Utils.substring(statement, "from ", "").trim();
             num = API.delete_row(tabStr, new Vector<>());
-            System.out.println("Query ok! " + num + " row(s) are deleted");
+            String info = "Query ok! " + num + " row(s) are deleted";
+            return new ReturnData(true, info);
         } else {  //delete from ... where ...
             String[] conSet = conStr.split(" *and *");
             //get condition vector
             conditions = Utils.create_conditon(conSet);
             num = API.delete_row(tabStr, conditions);
-            System.out.println("Query ok! " + num + " row(s) are deleted");
+            String info = "Query ok! " + num + " row(s) are deleted";
+            return new ReturnData(true, info);
         }
     }
 
-    private static void parse_quit(String statement, BufferedReader reader) throws Exception {
-        String[] tokens = statement.split(" ");
-        if (tokens.length != 1)
-            throw new QException(0, 1001, "Extra parameters in quit");
+//    private static void parse_quit(String statement, BufferedReader reader) throws Exception {
+//        String[] tokens = statement.split(" ");
+//        if (tokens.length != 1)
+//            throw new QException(0, 1001, "Extra parameters in quit");
+//
+//        API.store();
+//        reader.close();
+//        System.out.println("Bye");
+//        System.exit(0);
+//    }
 
-        API.store();
-        reader.close();
-        System.out.println("Bye");
-        System.exit(0);
-    }
-
-    private static void parse_sql_file(String statement) throws Exception {
-        execFile++;
-        String[] tokens = statement.split(" ");
-        if (tokens.length != 2)
-            throw new QException(0, 1101, "Extra parameters in sql file execution");
-
-        String fileName = tokens[1];
-        try {
-            BufferedReader fileReader = new BufferedReader(new FileReader(fileName));
-//            if (nestLock)  //first enter in sql file execution
-//                throw new QException(0, 1102, "Can't use nested file execution");
-//            nestLock = true; //lock, avoid nested execution
-            interpret(fileReader);
-        } catch (FileNotFoundException e) {
-            throw new QException(1, 1103, "Can't find the file");
-        } catch (IOException e) {
-            throw new QException(1, 1104, "IO exception occurs");
-        } finally {
-            execFile--;
-//            nestLock = false; //unlock
-        }
-    }
+//    private static void parse_sql_file(String statement) throws Exception {
+//        execFile++;
+//        String[] tokens = statement.split(" ");
+//        if (tokens.length != 2)
+//            throw new QException(0, 1101, "Extra parameters in sql file execution");
+//
+//        String fileName = tokens[1];
+//        try {
+//            BufferedReader fileReader = new BufferedReader(new FileReader(fileName));
+////            if (nestLock)  //first enter in sql file execution
+////                throw new QException(0, 1102, "Can't use nested file execution");
+////            nestLock = true; //lock, avoid nested execution
+//            interpret(fileReader);
+//        } catch (FileNotFoundException e) {
+//            throw new QException(1, 1103, "Can't find the file");
+//        } catch (IOException e) {
+//            throw new QException(1, 1104, "IO exception occurs");
+//        } finally {
+//            execFile--;
+////            nestLock = false; //unlock
+//        }
+//    }
 }
 
 class Utils {

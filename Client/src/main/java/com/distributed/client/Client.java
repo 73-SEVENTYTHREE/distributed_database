@@ -1,7 +1,10 @@
 package com.distributed.client;
+import RECORDMANAGER.ReturnData;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
+
 
 public class Client {
     private static final String ServerName = "127.0.0.1";
@@ -44,10 +47,22 @@ public class Client {
                 {
                     System.out.println("Fail to Send Data to Master");
                 }
+                ReturnData returnData = sendDataToRegionServer("127.0.0.1", result);
+                showData(returnData);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    /**
+     * @author
+     * @date 2021/6/8
+     * 将接回的数据展示
+     */
+    public static void showData(ReturnData returnData){
+        System.out.println(returnData.isSuccess);
+        System.out.println(returnData.info);
+        System.out.println(returnData.returnData.size());
     }
     /**
     * 发送数据给Master
@@ -80,23 +95,28 @@ public class Client {
      * Creator: Wei Liu
      * Date: 2021/6/6
      */
-    public static String sendDataToRegionServer(String data){
+    public static ReturnData sendDataToRegionServer(String regionServer, String data){
         //建立socket连接
         try
         {
             Socket client = new Socket(ServerName, RegionServerPort);
             OutputStream outToServer = client.getOutputStream();
-            DataOutputStream out = new DataOutputStream(outToServer);
-            out.writeUTF(data);
-            InputStream inFromServer = client.getInputStream();
-            DataInputStream in = new DataInputStream(inFromServer);
-            String response = in.readUTF();
+            PrintWriter pw = new PrintWriter(outToServer);
+            pw.println(data);
+            pw.flush();
+            ObjectInputStream ois=new ObjectInputStream(client.getInputStream());
+            ReturnData response = null;
+            try {
+                response = (ReturnData) ois.readObject();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
             System.out.println("服务器响应： " + response);
             return response;
         }catch(IOException e)
         {
             e.printStackTrace();
-            return "-1";
+            return new ReturnData(false, "Fatal Error: IO error!");
         }
     }
 

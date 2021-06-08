@@ -1,19 +1,19 @@
 import CATALOGMANAGER.CatalogManager;
+import RECORDMANAGER.ReturnData;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
-import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 /**
  * @author zzy
@@ -47,7 +47,11 @@ public class RegionServer {
         }
     }
 
-    @Test
+    /**
+     * @author zzy
+     * @date 2021/6/7
+     * 连接zookeeper，并且创建一个serv节点
+     */
     private static void zookeeperConnect(){
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(3000,10);
         client = CuratorFrameworkFactory.builder()
@@ -77,6 +81,7 @@ public class RegionServer {
  */
 class RegionServerThread extends Thread{
     Socket socket = null;
+    ObjectOutputStream oout = null;
 
     public RegionServerThread(Socket socket){
         this.socket = socket;
@@ -86,11 +91,30 @@ class RegionServerThread extends Thread{
     public void run() {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            Interpreter.interpret(reader);
+            this.oout = new ObjectOutputStream(socket.getOutputStream());
+            System.out.println("before readline");
+            String result = reader.readLine();
+            System.out.println("before get data");
+            ReturnData returnData = Interpreter.interpret(result);
+            System.out.println("after get data");
+            oout.writeObject(returnData);
+            oout.flush();
         } catch (IOException e) {
-            System.out.println("101 Run time error : IO exception occurs");
+            ReturnData returnData = new ReturnData(false, "101 Run time error : IO exception occurs");
+            try {
+                oout.writeObject(returnData);
+                oout.flush();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
         } catch (Exception e) {
-            System.out.println("Default error: " + e.getMessage());
+            ReturnData returnData = new ReturnData(false, "Default error: " + e.getMessage());
+            try {
+                oout.writeObject(returnData);
+                oout.flush();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
         }
     }
 }
