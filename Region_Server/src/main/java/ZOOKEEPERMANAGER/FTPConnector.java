@@ -18,37 +18,7 @@ public class FTPConnector {
     private static final String password = "2569535507";
     private static final FTPClient ftpClient = new FTPClient();
     private static final String FTPIP = "10.162.19.71";
-    public static void main(String[] args){
-        try {
-            InetAddress ftpIP = GetLocalIPAddress.getLocalHostLANAddress();
-            try {
-                ftpClient.connect("10.181.198.39", FTP_port); //连接ftp服务器
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
-            try {
-                ftpClient.login(username, password); //登录ftp服务器
-                int replyCode = ftpClient.getReplyCode(); //replyCode表示的是返回的状态码。
-                //判断状态码的状态，如果为true，表示连接成功
-                if(FTPReply.isPositiveCompletion(replyCode)){
-                    System.out.println("FTP connect successfully!");
-                }
-
-                boolean downloadState = downloadFile("", "README.md", "download");
-                if(downloadState) System.out.println("Download Successfully!");
-                else System.out.println("Fail to download the file!");
-
-                boolean uploadState = uploadFile("/table", "student2_index.index", "");
-                if(uploadState) System.out.println("Upload Successfully!");
-                else System.out.println("Fail to upload the file!");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-    }
     public static boolean FTPConnect() throws Exception{
         ftpClient.connect(FTPIP, FTP_port); //连接ftp服务器
         ftpClient.login(username, password); //登录ftp服务器
@@ -111,41 +81,6 @@ public class FTPConnector {
             File file = new File(uploadPath + fileName);
             in = new FileInputStream(file);
             String tempName = ftpPath + File.separator + file.getName();
-            System.out.println(tempName);
-            flag = ftpClient.storeFile(new String (tempName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1),in);
-        } catch (Exception e) {
-            System.out.println(e);
-            e.printStackTrace();
-        }finally{
-            try {
-                in.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return flag;
-    }
-
-    public static Boolean uploadFile(String ftpPath, String fileName, String uploadPath){
-        boolean flag = false;
-        InputStream in = null;
-        try {
-            // 设置PassiveMode传输
-            ftpClient.enterLocalPassiveMode();
-            //设置二进制传输，使用BINARY_FILE_TYPE，ASC容易造成文件损坏
-            ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
-            //判断FPT目标文件夹时候存在不存在则创建
-            if(!ftpClient.changeWorkingDirectory(ftpPath)){
-                ftpClient.makeDirectory(ftpPath);
-            }
-            //跳转目标目录
-            ftpClient.changeWorkingDirectory(ftpPath);
-
-            //上传文件
-            File file = new File(uploadPath + fileName);
-            in = new FileInputStream(file);
-            String tempName = ftpPath + File.separator + file.getName();
-            System.out.println(tempName);
             flag = ftpClient.storeFile(new String (tempName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1),in);
         } catch (Exception e) {
             System.out.println(e);
