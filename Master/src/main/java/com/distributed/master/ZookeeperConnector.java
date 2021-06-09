@@ -47,6 +47,7 @@ public class ZookeeperConnector extends Thread{
         cache.getListenable().addListener((c, event) -> {
             System.out.println(event.getType());
             List<String> children = client.getChildren().forPath("/");
+            dictionary.clear();
             for(String node : children){
                 String names = new String(client.getData().forPath("/" + node));
                 String[] info = names.split(" ");

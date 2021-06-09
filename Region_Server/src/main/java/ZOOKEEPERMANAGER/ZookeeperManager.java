@@ -6,6 +6,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.data.Stat;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -51,6 +52,10 @@ public class ZookeeperManager {
             data += t;
         }
         try {
+            Stat isExist = client.checkExists().forPath(path);
+            if(isExist != null){
+                client.delete().forPath(path);
+            }
             client.create().withMode(CreateMode.EPHEMERAL).forPath(path, data.getBytes());
         } catch (Exception e) {
             e.printStackTrace();

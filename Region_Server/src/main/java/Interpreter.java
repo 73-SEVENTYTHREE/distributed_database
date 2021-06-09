@@ -115,6 +115,7 @@ public class Interpreter {
                 }
                 API.store();
                 ZookeeperManager.tableChange();
+
                 return returnData;
             } catch (QException e) {
                 String info = e.status + " " + QException.ex[e.type] + ": " + e.msg;
