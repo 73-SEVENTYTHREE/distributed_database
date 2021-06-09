@@ -1,4 +1,5 @@
 import RECORDMANAGER.ReturnData;
+import ZOOKEEPERMANAGER.FTPConnector;
 import ZOOKEEPERMANAGER.ZookeeperManager;
 
 import java.io.*;
@@ -19,6 +20,7 @@ public class RegionServer {
         try {
             ServerSocket serverSocket = new ServerSocket(ClientPort);
             API.initial();
+            boolean ftpSuccess = FTPConnector.FTPConnect();
             ZookeeperManager.zookeeperConnect();
             while (true) {
                 Socket socket = serverSocket.accept();

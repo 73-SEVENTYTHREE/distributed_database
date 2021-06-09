@@ -1,9 +1,13 @@
+package ZOOKEEPERMANAGER;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
 import ZOOKEEPERMANAGER.GetLocalIPAddress;
+import ZOOKEEPERMANAGER.ZookeeperManager;
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
@@ -13,11 +17,12 @@ public class FTPConnector {
     private static final String username = "root";
     private static final String password = "2569535507";
     private static final FTPClient ftpClient = new FTPClient();
+    private static final String FTPIP = "10.162.19.71";
     public static void main(String[] args){
         try {
             InetAddress ftpIP = GetLocalIPAddress.getLocalHostLANAddress();
             try {
-                ftpClient.connect(ftpIP, FTP_port); //连接ftp服务器
+                ftpClient.connect("10.181.198.39", FTP_port); //连接ftp服务器
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -34,7 +39,7 @@ public class FTPConnector {
                 if(downloadState) System.out.println("Download Successfully!");
                 else System.out.println("Fail to download the file!");
 
-                boolean uploadState = uploadFile("/table", "test_index.index", "");
+                boolean uploadState = uploadFile("/table", "student2_index.index", "");
                 if(uploadState) System.out.println("Upload Successfully!");
                 else System.out.println("Fail to upload the file!");
             } catch (IOException e) {
@@ -43,6 +48,12 @@ public class FTPConnector {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
+    }
+    public static boolean FTPConnect() throws Exception{
+        ftpClient.connect(FTPIP, FTP_port); //连接ftp服务器
+        ftpClient.login(username, password); //登录ftp服务器
+        int replyCode = ftpClient.getReplyCode(); //replyCode表示的是返回的状态码。
+        return FTPReply.isPositiveCompletion(replyCode);
     }
 
     public static Boolean downloadFile(String filePath, String fileName, String downloadPath){
@@ -75,6 +86,42 @@ public class FTPConnector {
         } catch (Exception e) {
             flag = false;
             System.out.println(e);
+        }
+        return flag;
+    }
+
+    public static Boolean uploadFile(String fileName){
+        String ftpPath = ZookeeperManager.getPath();
+        String uploadPath = "";
+        boolean flag = false;
+        InputStream in = null;
+        try {
+            // 设置PassiveMode传输
+            ftpClient.enterLocalPassiveMode();
+            //设置二进制传输，使用BINARY_FILE_TYPE，ASC容易造成文件损坏
+            ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
+            //判断FPT目标文件夹时候存在不存在则创建
+            if(!ftpClient.changeWorkingDirectory(ftpPath)){
+                ftpClient.makeDirectory(ftpPath);
+            }
+            //跳转目标目录
+            ftpClient.changeWorkingDirectory(ftpPath);
+
+            //上传文件
+            File file = new File(uploadPath + fileName);
+            in = new FileInputStream(file);
+            String tempName = ftpPath + File.separator + file.getName();
+            System.out.println(tempName);
+            flag = ftpClient.storeFile(new String (tempName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1),in);
+        } catch (Exception e) {
+            System.out.println(e);
+            e.printStackTrace();
+        }finally{
+            try {
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return flag;
     }

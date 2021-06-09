@@ -1,6 +1,7 @@
 package ZOOKEEPERMANAGER;
 
 import CATALOGMANAGER.CatalogManager;
+import org.apache.commons.net.ftp.FTPClient;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -15,12 +16,12 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class ZookeeperManager {
-    static final String zookeeperServer = "127.0.0.1";
+    static final String zookeeperServer = "10.162.19.71";
     static CuratorFramework client;
     static ArrayList<String> tableNames;
     static String regionServerIP;
     static String path = "";
-    private static final String masterServerName = "127.0.0.1";
+    private static final String masterServerName = "10.162.19.71";
     private static final int masterPort = 8002;
 
     /**
@@ -44,17 +45,24 @@ public class ZookeeperManager {
                 .namespace("service")
                 .build();
         client.start();
-        String data = regionServerIP;
+        StringBuilder data = new StringBuilder(regionServerIP);
         for(String t : tableNames){
-            data += " ";
-            data += t;
+            data.append(" ");
+            data.append(t);
         }
         try {
             Stat isExist = client.checkExists().forPath(path);
-            if(isExist != null){
+            if (isExist != null) {
                 client.delete().forPath(path);
+            }else{
+                FTPConnector.uploadFile("table_catalog");
+                FTPConnector.uploadFile("index_catalog");
+                for(String t : tableNames){
+                    FTPConnector.uploadFile(t);
+                    FTPConnector.uploadFile(t+"_index.index");
+                }
             }
-            client.create().withMode(CreateMode.EPHEMERAL).forPath(path, data.getBytes());
+            client.create().withMode(CreateMode.EPHEMERAL).forPath(path, data.toString().getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -78,6 +86,8 @@ public class ZookeeperManager {
     public static void connectClose(){
         client.close();
     }
+
+    public static String getPath(){ return path; }
 
     public static String getRegionName() {
         try

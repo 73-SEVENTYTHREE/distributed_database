@@ -8,6 +8,7 @@ import RECORDMANAGER.Condition;
 import RECORDMANAGER.RecordManager;
 import RECORDMANAGER.ReturnData;
 import RECORDMANAGER.TableRow;
+import ZOOKEEPERMANAGER.FTPConnector;
 import ZOOKEEPERMANAGER.ZookeeperManager;
 
 import java.io.*;
@@ -236,6 +237,10 @@ public class Interpreter {
         Table table = new Table(tableName, primaryName, attrVec); // create table
         API.create_table(tableName, table);
         API.store();
+        FTPConnector.uploadFile(tableName);
+        FTPConnector.uploadFile(tableName+"_index.index");
+        FTPConnector.uploadFile("table_catalog");
+        FTPConnector.uploadFile("index_catalog");
         String info = "Create table " + tableName + " successfully";
         return new ReturnData(true, info);
     }
@@ -284,6 +289,8 @@ public class Interpreter {
 
         Index index = new Index(indexName, tableName, attrName);
         API.create_index(index);
+        FTPConnector.uploadFile("index_catalog");
+        FTPConnector.uploadFile(tableName+"_index.index");
         String info = "Create index " + indexName + " successfully";
         return new ReturnData(true, info);
     }
@@ -440,6 +447,8 @@ public class Interpreter {
         }
 
         API.insert_row(tableName, tableRow);
+        FTPConnector.uploadFile(tableName);
+        FTPConnector.uploadFile(tableName+"_index.index");
         String info = "Insert successfully";
         return new ReturnData(true, info);
     }
@@ -454,6 +463,8 @@ public class Interpreter {
         if (tabStr.equals("")) {  //delete from ...
             tabStr = Utils.substring(statement, "from ", "").trim();
             num = API.delete_row(tabStr, new Vector<>());
+            FTPConnector.uploadFile(tabStr);
+            FTPConnector.uploadFile(tabStr+"_index.index");
             String info = "Query ok! " + num + " row(s) are deleted";
             return new ReturnData(true, info);
         } else {  //delete from ... where ...
@@ -461,6 +472,8 @@ public class Interpreter {
             //get condition vector
             conditions = Utils.create_conditon(conSet);
             num = API.delete_row(tabStr, conditions);
+            FTPConnector.uploadFile(tabStr);
+            FTPConnector.uploadFile(tabStr+"_index.index");
             String info = "Query ok! " + num + " row(s) are deleted";
             return new ReturnData(true, info);
         }

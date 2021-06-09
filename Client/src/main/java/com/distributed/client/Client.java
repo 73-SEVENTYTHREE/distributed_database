@@ -7,7 +7,7 @@ import java.net.Socket;
 
 
 public class Client {
-    private static final String ServerName = "127.0.0.1";
+    private static final String ServerName = "10.162.19.71";
     private static final int MasterPort = 8000;
     private static final int RegionServerPort = 8001;
     public static void main(String[] args){
