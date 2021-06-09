@@ -79,55 +79,39 @@ public class Interpreter {
             try {
                 if (tokens.length == 1 && tokens[0].equals(""))
                     throw new QException(0, 200, "No statement specified");
-                switch (tokens[0]) { //match keyword
-                    case "create":
+                //match keyword
+                //                    case "quit":
+                //                        parse_quit(result, reader);
+                //                        break;
+                //                    case "execfile":
+                //                        parse_sql_file(result);
+                //                        break;
+                //                    case "show":
+                //                        parse_show(result);
+                //                        break;
+                switch (tokens[0]) {
+                    case "create" -> {
                         if (tokens.length == 1)
                             throw new QException(0, 201, "Can't find create object");
-                        switch (tokens[1]) {
-                            case "table":
-                                returnData = parse_create_table(result);
-                                break;
-                            case "index":
-                                returnData = parse_create_index(result);
-                                break;
-                            default:
-                                throw new QException(0, 202, "Can't identify " + tokens[1]);
-                        }
-                        break;
-                    case "drop":
+                        returnData = switch (tokens[1]) {
+                            case "table" -> parse_create_table(result);
+                            case "index" -> parse_create_index(result);
+                            default -> throw new QException(0, 202, "Can't identify " + tokens[1]);
+                        };
+                    }
+                    case "drop" -> {
                         if (tokens.length == 1)
                             throw new QException(0, 203, "Can't find drop object");
-                        switch (tokens[1]) {
-                            case "table":
-                                returnData = parse_drop_table(result);
-                                break;
-                            case "index":
-                                returnData = parse_drop_index(result);
-                                break;
-                            default:
-                                throw new QException(0, 204, "Can't identify " + tokens[1]);
-                        }
-                        break;
-                    case "select":
-                        returnData = parse_select(result);
-                        break;
-                    case "insert":
-                        returnData = parse_insert(result);
-                        break;
-                    case "delete":
-                        returnData = parse_delete(result);
-                        break;
-//                    case "quit":
-//                        parse_quit(result, reader);
-//                        break;
-//                    case "execfile":
-//                        parse_sql_file(result);
-//                        break;
-//                    case "show":
-//                        parse_show(result);
-//                        break;
-                    default:
-                        throw new QException(0, 205, "Can't identify " + tokens[0]);
+                        returnData = switch (tokens[1]) {
+                            case "table" -> parse_drop_table(result);
+                            case "index" -> parse_drop_index(result);
+                            default -> throw new QException(0, 204, "Can't identify " + tokens[1]);
+                        };
+                    }
+                    case "select" -> returnData = parse_select(result);
+                    case "insert" -> returnData = parse_insert(result);
+                    case "delete" -> returnData = parse_delete(result);
+                    default -> throw new QException(0, 205, "Can't identify " + tokens[0]);
                 }
                 API.store();
                 ZookeeperManager.tableChange();

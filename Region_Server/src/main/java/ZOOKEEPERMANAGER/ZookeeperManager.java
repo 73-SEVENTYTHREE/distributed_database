@@ -7,7 +7,9 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 
+import java.io.*;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -18,7 +20,9 @@ public class ZookeeperManager {
     static CuratorFramework client;
     static ArrayList<String> tableNames;
     static String regionServerIP;
-    static String path = "/serv";
+    static String path = "";
+    private static final String masterServerName = "127.0.0.1";
+    private static final int masterPort = 8002;
 
     /**
      * @author zzy
@@ -33,6 +37,7 @@ public class ZookeeperManager {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
+        path = getRegionName();
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(3000,10);
         client = CuratorFrameworkFactory.builder()
                 .connectString(zookeeperServer)
@@ -46,8 +51,6 @@ public class ZookeeperManager {
             data += t;
         }
         try {
-            List<String> children = client.getChildren().forPath("/");
-            path += children.size();
             client.create().forPath(path, data.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
@@ -71,5 +74,24 @@ public class ZookeeperManager {
 
     public static void connectClose(){
         client.close();
+    }
+
+    public static String getRegionName() {
+        try
+        {
+            Socket client = new Socket(masterServerName, masterPort);
+            OutputStream outToServer = client.getOutputStream();
+            DataOutputStream out = new DataOutputStream(outToServer);
+            out.writeUTF(regionServerIP);
+            InputStream inFromServer = client.getInputStream();
+            DataInputStream in = new DataInputStream(inFromServer);
+            String name = in.readUTF();
+            client.close();
+            return name;
+        }catch(IOException e)
+        {
+            e.printStackTrace();
+            return "error";
+        }
     }
 }

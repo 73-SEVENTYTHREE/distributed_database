@@ -15,6 +15,9 @@ public class Master extends Thread {
     private final ServerSocket serverSocket;
     //储存IP地址和表的映射关系的哈希Map
     public static HashMap<String, List<String>> dictionary = new HashMap<>();
+    public static HashMap<String, String> regionNameTable = new HashMap<>();
+    public static final int RegionListenerPort = 8002;
+    public static int numberOfRegionServer = 0;
     public Master(int port) throws IOException
     {
         serverSocket = new ServerSocket(port);
@@ -91,6 +94,8 @@ public class Master extends Thread {
     {
         try
         {
+            Thread t3 = new RegionServerConnector(8002);
+            t3.start();
             Thread t1 = new Master(8000);
             t1.start();
             Thread t2 = new ZookeeperConnector(dictionary);

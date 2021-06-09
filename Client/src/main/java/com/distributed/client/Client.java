@@ -1,10 +1,9 @@
 package com.distributed.client;
+
 import RECORDMANAGER.ReturnData;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Scanner;
 
 
 public class Client {
@@ -89,6 +88,7 @@ public class Client {
         }
         System.out.println(returnData.info);
     }
+
     /**
     * 发送数据给Master
     * Creator: Wei Liu
@@ -103,7 +103,6 @@ public class Client {
             DataOutputStream out = new DataOutputStream(outToServer);
             out.writeUTF(data);
             InputStream inFromServer = client.getInputStream();
-
             DataInputStream in = new DataInputStream(inFromServer);
             return in.readUTF();
         }catch(IOException e)
@@ -114,7 +113,7 @@ public class Client {
     }
 
     /**
-     * 发送数据给Master
+     * 发送数据给RegionServer
      * Creator: Wei Liu
      * Date: 2021/6/6
      */
