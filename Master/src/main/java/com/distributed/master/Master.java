@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +60,6 @@ public class Master extends Thread {
                 String response = ""; //回复报文
 
                 String[] tableName = in.readUTF().split(" ");
-                System.out.println(Arrays.toString(tableName));
                 String url = "";
                 if(tableName.length == 1){
                     url = getUrlByTableName(tableName[0]);
@@ -75,7 +73,6 @@ public class Master extends Thread {
                     }
                     else response = "The table already exists!";
                 }
-                System.out.println(response);
                 DataOutputStream out = new DataOutputStream(server.getOutputStream());
                 out.writeUTF(response);
                 server.close();

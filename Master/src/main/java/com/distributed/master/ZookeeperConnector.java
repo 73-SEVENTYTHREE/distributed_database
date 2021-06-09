@@ -46,9 +46,6 @@ public class ZookeeperConnector extends Thread{
         cache.start();
         cache.getListenable().addListener((c, event) -> {
             System.out.println(event.getType());
-            if(event.getData() != null){
-                System.out.println("节点数据：" + event.getData().getPath() + " = " + new String(event.getData().getData()));
-            }
             List<String> children = client.getChildren().forPath("/");
             for(String node : children){
                 String names = new String(client.getData().forPath("/" + node));
@@ -60,6 +57,7 @@ public class ZookeeperConnector extends Thread{
                 }
                 dictionary.put(url, tableName);
             }
+            System.out.println("RegionServer和表的对应关系如下：");
             System.out.println(dictionary);
         });
         Thread.sleep(Integer.MAX_VALUE);

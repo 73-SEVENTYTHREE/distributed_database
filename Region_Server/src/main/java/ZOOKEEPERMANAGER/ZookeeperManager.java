@@ -51,7 +51,7 @@ public class ZookeeperManager {
             data += t;
         }
         try {
-            client.create().forPath(path, data.getBytes());
+            client.create().withMode(CreateMode.EPHEMERAL).forPath(path, data.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }
