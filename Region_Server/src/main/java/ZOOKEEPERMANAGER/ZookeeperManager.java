@@ -12,9 +12,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ZookeeperManager {
     static final String zookeeperServer = "127.0.0.1";
@@ -34,7 +32,7 @@ public class ZookeeperManager {
         tableNames = CatalogManager.get_tables();
         System.out.println(tableNames);
         try {
-            regionServerIP = String.valueOf(InetAddress.getLocalHost().getHostAddress());
+            regionServerIP = String.valueOf(GetLocalIPAddress.getLocalHostLANAddress()).substring(1);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
