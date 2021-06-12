@@ -5,6 +5,7 @@ import ZOOKEEPERMANAGER.ZookeeperManager;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 
 /**
@@ -14,6 +15,7 @@ import java.util.ArrayList;
  */
 public class RegionServer {
     static final int ClientPort = 8001;
+    static final int FailurePort =8010;
     static ArrayList<Thread> threads = new ArrayList<>();
 
     public static void main(String[] args) {
@@ -22,6 +24,8 @@ public class RegionServer {
             API.initial();
             boolean ftpSuccess = FTPConnector.FTPConnect();
             ZookeeperManager.zookeeperConnect();
+            Thread failureThread = new FailureThread();
+            failureThread.start();
             while (true) {
                 Socket socket = serverSocket.accept();
                 Thread regionThread = new RegionServerThread(socket);
@@ -32,6 +36,10 @@ public class RegionServer {
             ZookeeperManager.connectClose();
             e.printStackTrace();
         }
+    }
+
+    public void getTable(){
+
     }
 }
 
@@ -74,6 +82,50 @@ class RegionServerThread extends Thread {
                 oout.flush();
             } catch (IOException ioException) {
                 ioException.printStackTrace();
+            }
+        }
+    }
+}
+
+class FailureThread extends Thread {
+    private final ServerSocket serverSocket;
+    public FailureThread() throws IOException{
+        serverSocket = new ServerSocket(RegionServer.FailurePort);
+        serverSocket.setSoTimeout(Integer.MAX_VALUE);
+    }
+
+    @Override
+    public void run()
+    {
+        while(true)
+        {
+            try
+            {
+                Socket server = serverSocket.accept();
+                DataInputStream in = new DataInputStream(server.getInputStream());
+
+                String response = "Region Transform Fail!";
+                String node = in.readUTF();
+                if(FTPConnector.downloadAllFiles(node,"/")) {
+                    response = "Region Transform Success!";
+                    try {
+                        API.initial();
+                        ZookeeperManager.tableChange();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                DataOutputStream out = new DataOutputStream(server.getOutputStream());
+                out.writeUTF(response);
+                server.close();
+            }catch(SocketTimeoutException s)
+            {
+                System.out.println("Socket timed out!");
+                break;
+            }catch(IOException e)
+            {
+                e.printStackTrace();
+                break;
             }
         }
     }

@@ -12,6 +12,31 @@ public class CatalogManager {
     private static String tableFilename = "table_catalog";
     private static String indexFilename = "index_catalog";
 
+    public static LinkedHashMap<String, Table> retriveTables(){return tables;}
+    public static LinkedHashMap<String, Index> retriveIndexes(){return indexes;}
+    public static void appendTables(LinkedHashMap<String, Table> newTable){
+        Table tmpTable;
+        Iterator<Map.Entry<String, Table>> iter = newTable.entrySet().iterator();
+        while (iter.hasNext()) {
+            System.out.println("into function");
+            Map.Entry entry = iter.next();
+            tmpTable = (Table) entry.getValue();
+            System.out.println(tmpTable.tableName);
+            tables.put(tmpTable.tableName, tmpTable);
+            System.out.println("appending A!");
+        }
+    }
+    public static LinkedHashMap<String, Index> appendIndexes(LinkedHashMap<String, Index> newIndex){
+        Index tmpIndex;
+        //Enumeration<Index> en = indexes.elements();
+        Iterator<Map.Entry<String, Index>> iter = newIndex.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry entry = iter.next();
+            tmpIndex = (Index) entry.getValue();
+            indexes.put(tmpIndex.indexName, tmpIndex);
+        }
+        return indexes;
+    }
     public static void initial_catalog() throws IOException {
         initial_table();
         initial_index();
