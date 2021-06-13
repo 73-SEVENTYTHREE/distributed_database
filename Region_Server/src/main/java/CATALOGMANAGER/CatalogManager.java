@@ -12,6 +12,7 @@ public class CatalogManager {
     private static String tableFilename = "table_catalog";
     private static String indexFilename = "index_catalog";
 
+
     public static void initial_catalog() throws IOException {
         initial_table();
         initial_index();

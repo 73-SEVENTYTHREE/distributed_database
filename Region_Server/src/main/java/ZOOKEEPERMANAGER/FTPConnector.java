@@ -60,6 +60,32 @@ public class FTPConnector {
         return flag;
     }
 
+    public static Boolean downloadAllFiles(String filePath, String downloadPath){
+        boolean flag = false;
+        try {
+            // 跳转到文件目录
+            ftpClient.changeWorkingDirectory(filePath);
+            // 获取目录下文件集合
+            ftpClient.enterLocalPassiveMode();
+            FTPFile[] files = ftpClient.listFiles();
+
+            //判断文件下载路径是否存在
+            File directory = new File(downloadPath);
+            if(!directory.exists()) directory.mkdirs();
+
+            for (FTPFile file : files) {
+                // 取得指定文件并下载
+                flag=downloadFile(filePath,file.getName(),downloadPath);
+                if(!flag) break;
+            }
+            return flag;
+
+        } catch (Exception e) {
+            flag = false;
+            System.out.println(e);
+        }
+        return flag;
+    }
     public static Boolean uploadFile(String fileName){
         String ftpPath = ZookeeperManager.getPath();
         String uploadPath = "";
