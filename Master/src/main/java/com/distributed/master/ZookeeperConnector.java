@@ -7,6 +7,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 
+import java.io.IOException;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
