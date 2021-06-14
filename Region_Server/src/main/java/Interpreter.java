@@ -114,7 +114,6 @@ public class Interpreter {
                     case "delete" -> returnData = parse_delete(result);
                     default -> throw new QException(0, 205, "Can't identify " + tokens[0]);
                 }
-                API.store();
                 ZookeeperManager.tableChange();
 
                 return returnData;
