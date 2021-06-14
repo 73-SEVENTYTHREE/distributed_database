@@ -36,7 +36,7 @@ public class Master extends Thread {
     }
 
     //寻找存储表最少的从节点
-    public String getMostFreeRegionServer(){
+    public static String getMostFreeRegionServer(){
         String url = "";
         int min = Integer.MAX_VALUE;
         for(Map.Entry<String, List<String>> entry : dictionary.entrySet()){
