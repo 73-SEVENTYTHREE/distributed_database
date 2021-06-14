@@ -254,6 +254,7 @@ public class Interpreter {
 
         String tableName = tokens[2]; //get table name
         API.drop_table(tableName);
+        API.store();
         String info = "Drop table " + tableName + " successfully";
         return new ReturnData(true, info);
     }
@@ -289,6 +290,7 @@ public class Interpreter {
 
         Index index = new Index(indexName, tableName, attrName);
         API.create_index(index);
+        API.store();
         FTPConnector.uploadFile("index_catalog");
         FTPConnector.uploadFile(tableName+"_index.index");
         String info = "Create index " + indexName + " successfully";
@@ -304,6 +306,7 @@ public class Interpreter {
 
         String indexName = tokens[2]; //get table name
         API.drop_index(indexName);
+        API.store();
         String info = "Drop index " + indexName + " successfully";
         return new ReturnData(true, info);
     }
@@ -447,6 +450,7 @@ public class Interpreter {
         }
 
         API.insert_row(tableName, tableRow);
+        API.store();
         FTPConnector.uploadFile(tableName);
         FTPConnector.uploadFile(tableName+"_index.index");
         String info = "Insert successfully";
@@ -463,6 +467,7 @@ public class Interpreter {
         if (tabStr.equals("")) {  //delete from ...
             tabStr = Utils.substring(statement, "from ", "").trim();
             num = API.delete_row(tabStr, new Vector<>());
+            API.store();
             FTPConnector.uploadFile(tabStr);
             FTPConnector.uploadFile(tabStr+"_index.index");
             String info = "Query ok! " + num + " row(s) are deleted";
@@ -472,6 +477,7 @@ public class Interpreter {
             //get condition vector
             conditions = Utils.create_conditon(conSet);
             num = API.delete_row(tabStr, conditions);
+            API.store();
             FTPConnector.uploadFile(tabStr);
             FTPConnector.uploadFile(tabStr+"_index.index");
             String info = "Query ok! " + num + " row(s) are deleted";

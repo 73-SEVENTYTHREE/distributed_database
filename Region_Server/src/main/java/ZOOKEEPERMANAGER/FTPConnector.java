@@ -14,10 +14,10 @@ import org.apache.commons.net.ftp.FTPReply;
 
 public class FTPConnector {
     private static final int FTP_port = 21;
-    private static final String username = "Lysander";
-    private static final String password = "liuhaiyang87";
+    private static final String username = "root";
+    private static final String password = "2569535507";
     private static final FTPClient ftpClient = new FTPClient();
-    private static final String FTPIP = "10.181.246.72";
+    private static final String FTPIP = "192.168.43.182";
 
     public static boolean FTPConnect() throws Exception{
         ftpClient.connect(FTPIP, FTP_port); //连接ftp服务器

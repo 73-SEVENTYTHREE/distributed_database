@@ -16,12 +16,12 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class ZookeeperManager {
-    static final String zookeeperServer = "10.181.195.16";
+    static final String zookeeperServer = "192.168.43.182";
     static CuratorFramework client;
     static ArrayList<String> tableNames;
     static String regionServerIP;
     static String path = "";
-    private static final String masterServerName = "10.181.195.16";
+    private static final String masterServerName = "192.168.43.182";
     private static final int masterPort = 8002;
 
     /**
