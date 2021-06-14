@@ -30,6 +30,7 @@ public class Interpreter {
         } catch (IOException e) {
             System.out.println("101 Run time error : IO exception occurs");
         } catch (Exception e) {
+            System.out.println("here2");
             System.out.println("Default error: " + e.getMessage());
         }
 
@@ -122,6 +123,7 @@ public class Interpreter {
                 returnData = new ReturnData(false, info);
                 return returnData;
             } catch (Exception e) {
+                System.out.println("here1");
                 String info =  "Default error: " + e.getMessage();
                 returnData = new ReturnData(false, info);
                 return returnData;

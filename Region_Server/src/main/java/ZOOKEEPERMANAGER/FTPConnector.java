@@ -79,9 +79,9 @@ public class FTPConnector {
                 File downFile = new File(downloadPath + file.getName());
                 OutputStream out = new FileOutputStream(downFile);
                 // 绑定输出流下载文件,需要设置编码集，不然可能出现文件为空的情况
-                flag = ftpClient.retrieveFile(new String(file.getName().getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1), out);
+                flag = ftpClient.retrieveFile(new String(file.getName().getBytes("UTF-8"), "ISO-8859-1"), out);
                 // 下载成功删除文件,看项目需求
-                // ftp.deleteFile(new String(fileName.getBytes("UTF-8"),"ISO-8859-1"));
+//                 ftpClient.deleteFile(new String(file.getName().getBytes("UTF-8"),"ISO-8859-1"));
                 out.flush();
                 out.close();
                 if(!flag) break;

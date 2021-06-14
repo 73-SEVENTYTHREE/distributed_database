@@ -74,6 +74,7 @@ class RegionServerThread extends Thread {
                 ioException.printStackTrace();
             }
         } catch (Exception e) {
+            System.out.println("here3");
             ReturnData returnData = new ReturnData(false, "Default error: " + e.getMessage());
             try {
                 oout.writeObject(returnData);
