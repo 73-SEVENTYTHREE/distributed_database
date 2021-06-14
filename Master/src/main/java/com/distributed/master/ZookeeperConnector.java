@@ -7,7 +7,6 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 
-import java.io.IOException;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -54,8 +53,19 @@ public class ZookeeperConnector extends Thread{
             if(event.getType()== PathChildrenCacheEvent.Type.CHILD_REMOVED)
             {
                 String path = event.getData().getPath();
-                String url = Master.getMostFreeRegionServer();
-                if(Master.dictionary.get(url).size()!=0) url="-1";
+                System.out.println(path+" disconnected!");
+                String url= new String("-1");
+                List<String> children = client.getChildren().forPath("/");
+                for(String node : children){
+                    String tables = new String(client.getData().forPath("/" + node));
+                    String[] info = tables.split(" ");
+                    if(info.length == 1){
+                        url = info[0];
+                        break;
+                    }
+                }
+                //url = Master.getMostFreeRegionServer();
+                //if(Master.dictionary.get(url).size()!=0) url="-1";
                 if(!url.equals("-1"))
                 {
                     try {
@@ -72,6 +82,9 @@ public class ZookeeperConnector extends Thread{
                     {
                         e.printStackTrace();
                     }
+                }
+                else{
+                    System.out.println("Can not Find Empty RegionServer!");
                 }
 
             }

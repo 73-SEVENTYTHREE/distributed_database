@@ -16,12 +16,12 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class ZookeeperManager {
-    static final String zookeeperServer = "10.162.19.71";
+    static final String zookeeperServer = "10.181.195.16";
     static CuratorFramework client;
     static ArrayList<String> tableNames;
     static String regionServerIP;
     static String path = "";
-    private static final String masterServerName = "10.162.19.71";
+    private static final String masterServerName = "10.181.195.16";
     private static final int masterPort = 8002;
 
     /**
@@ -60,7 +60,9 @@ public class ZookeeperManager {
                 for(String t : tableNames){
                     FTPConnector.uploadFile(t);
                     FTPConnector.uploadFile(t+"_index.index");
+
                 }
+
             }
             client.create().withMode(CreateMode.EPHEMERAL).forPath(path, data.toString().getBytes());
         } catch (Exception e) {

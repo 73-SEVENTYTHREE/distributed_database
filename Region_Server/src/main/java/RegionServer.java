@@ -1,3 +1,4 @@
+import CATALOGMANAGER.CatalogManager;
 import RECORDMANAGER.ReturnData;
 import ZOOKEEPERMANAGER.FTPConnector;
 import ZOOKEEPERMANAGER.ZookeeperManager;
@@ -38,9 +39,6 @@ public class RegionServer {
         }
     }
 
-    public void getTable(){
-
-    }
 }
 
 
@@ -106,7 +104,8 @@ class FailureThread extends Thread {
 
                 String response = "Region Transform Fail!";
                 String node = in.readUTF();
-                if(FTPConnector.downloadAllFiles(node,"/")) {
+                System.out.println(node + " need to be reconstruct!");
+                if(FTPConnector.downloadAllFiles(node,"")) {
                     response = "Region Transform Success!";
                     try {
                         API.initial();
