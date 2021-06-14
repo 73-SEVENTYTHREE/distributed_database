@@ -7,6 +7,7 @@ import RECORDMANAGER.RecordManager;
 import RECORDMANAGER.TableRow;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class API {
@@ -16,6 +17,7 @@ public class API {
 		    BufferManager.initial_buffer();  //init Buffer Manager
 		    CatalogManager.initial_catalog();  //init Catalog Manager
 		    IndexManager.initial_index(); //init Index Manager
+
 	    } catch (Exception e) {
 		    throw new QException(1, 500, "Failed to initialize API!");
 	    }
