@@ -14,10 +14,10 @@ import org.apache.commons.net.ftp.FTPReply;
 
 public class FTPConnector {
     private static final int FTP_port = 21;
-    private static final String username = "root";
-    private static final String password = "2569535507";
+    private static final String username = "Lysander";
+    private static final String password = "liuhaiyang87";
     private static final FTPClient ftpClient = new FTPClient();
-    private static final String FTPIP = "10.162.19.71";
+    private static final String FTPIP = "10.181.246.72";
 
     public static boolean FTPConnect() throws Exception{
         ftpClient.connect(FTPIP, FTP_port); //连接ftp服务器
@@ -64,19 +64,28 @@ public class FTPConnector {
         boolean flag = false;
         try {
             // 跳转到文件目录
-            ftpClient.changeWorkingDirectory(filePath);
+            ftpClient.changeWorkingDirectory(filePath+"/");
             // 获取目录下文件集合
             ftpClient.enterLocalPassiveMode();
             FTPFile[] files = ftpClient.listFiles();
 
             //判断文件下载路径是否存在
-            File directory = new File(downloadPath);
-            if(!directory.exists()) directory.mkdirs();
+            //File directory = new File(downloadPath);
+            //if(!directory.exists()) directory.mkdirs();
 
             for (FTPFile file : files) {
                 // 取得指定文件并下载
-                flag=downloadFile(filePath,file.getName(),downloadPath);
+                //flag=downloadFile(filePath,file.getName(),downloadPath);
+                File downFile = new File(downloadPath + file.getName());
+                OutputStream out = new FileOutputStream(downFile);
+                // 绑定输出流下载文件,需要设置编码集，不然可能出现文件为空的情况
+                flag = ftpClient.retrieveFile(new String(file.getName().getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1), out);
+                // 下载成功删除文件,看项目需求
+                // ftp.deleteFile(new String(fileName.getBytes("UTF-8"),"ISO-8859-1"));
+                out.flush();
+                out.close();
                 if(!flag) break;
+
             }
             return flag;
 
