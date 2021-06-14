@@ -4,15 +4,20 @@ import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 
 import java.io.IOException;
+import java.io.*;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public class ZookeeperConnector extends Thread{
     private static final String ConnectString = "localhost:2181";
+    private static final int FailurePort =8010;
     public ZookeeperConnector(HashMap<String, List<String>> dictionary) throws IOException {
         try {
             getNode(dictionary);
@@ -46,6 +51,30 @@ public class ZookeeperConnector extends Thread{
         cache.start();
         cache.getListenable().addListener((c, event) -> {
             System.out.println(event.getType());
+            if(event.getType()== PathChildrenCacheEvent.Type.CHILD_REMOVED)
+            {
+                String path = event.getData().getPath();
+                String url = Master.getMostFreeRegionServer();
+                if(Master.dictionary.get(url).size()!=0) url="-1";
+                if(!url.equals("-1"))
+                {
+                    try {
+                        Socket socket = new Socket(url, FailurePort);
+                        OutputStream outToRegionServer = socket.getOutputStream();
+                        DataOutputStream out = new DataOutputStream(outToRegionServer);
+                        out.writeUTF(path);
+                        InputStream inFromRegionServer = socket.getInputStream();
+                        DataInputStream in = new DataInputStream(inFromRegionServer);
+                        String result = in.readUTF();
+                        socket.close();
+                        System.out.println(result);
+                    }catch(IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
             List<String> children = client.getChildren().forPath("/");
             dictionary.clear();
             for(String node : children){
